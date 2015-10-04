@@ -16,7 +16,8 @@ sticks or sd cards.
 ```shell
 $ cd synceta
 $ make # Compilation
-$ ./synceta
+$ sudo PREFIX=/usr/local make install # Install in the system
+$ synceta
 ```
 
 ## TODO

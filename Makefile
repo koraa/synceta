@@ -1,6 +1,9 @@
 CFLAGS += -ansi -pthread
 LDFLAGS += -lm
 
+PREFIX ?= /usr/local
+BINDIR ?= $(PREFIX)/bin
+
 ifdef DEBUG
 	CFLAGS += -g -O0
 else
@@ -11,9 +14,15 @@ exe = synceta
 objs = $(exe).o
 
 $(exe) : $(objs)
-	$(CC) $(CFLAGS) $(LDFLAGS) $(objs) -o $(exe)
+	"$(CC)" $(CFLAGS) $(LDFLAGS) $(objs) -o "$(exe)"
 
-.PHONY: clean
+.PHONY: clean install uninstall
 
 clean:
-	rm -fv $(objs) $(exe)
+	rm -fv $(objs) "$(exe)"
+
+install: $(exe)
+	cp -v "$(exe)" "$(BINDIR)/"
+
+uninstall:
+	rm -v "$(BINDIR)/$(exe)"
