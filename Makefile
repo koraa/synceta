@@ -1,4 +1,5 @@
 CFLAGS += -ansi -pthread
+LDFLAGS += -lm
 
 ifdef DEBUG
 	CC += -g -O0
