@@ -2,9 +2,9 @@ CFLAGS += -ansi -pthread
 LDFLAGS += -lm
 
 ifdef DEBUG
-	CC += -g -O0
+	CFLAGS += -g -O0
 else
-	CC += -O2
+	CFLAGS += -O2
 endif
 
 exe = synceta
