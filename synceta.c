@@ -3,9 +3,15 @@
 #include <sys/stat.h>
 #include <fcntl.h>
 
+#define __need_timespec 1
+#include <time.h>
+
+#include <pthread.h>
+
 #include <stdio.h>
 #include <stdint.h>
 #include <stdlib.h>
+#include <stdbool.h>
 
 #include <string.h>
 
@@ -38,12 +44,7 @@ size_t auto_read_fd(int fd, char **buf, size_t *len) {
     *len = 1024;
     *buf = realloc(*buf, *len);
   }
-
-  /* Initialize *buf if necessary */
-  if (*buf == NULL) {
-    *buf = realloc(*buf, *len);
-  }
-
+/* Initialize *buf if necessary */ if (*buf == NULL) { *buf = realloc(*buf, *len); } 
   size_t red = 0;
 
   /* Read the file piece by piece, gradually resizing the buffer */
@@ -102,7 +103,41 @@ size_t fscache_dirty() {
   return atoll(line) * 1000;
 }
 
+/**
+ * Sleep for N milliseconds
+ * (Wrapper around nanosleep)
+ * @param t The number of milliseconds to sleep
+ */
+void millisleep(long long t) {
+  struct timespec tt;
+  struct timespec out;
+  tt.tv_sec = t / 1000;
+  tt.tv_nsec = (t % 1000) * 1000000;
+  nanosleep(&tt, &out); /* TODO: Error handling */
+}
+
+/**
+ * Thread that continuously prints the progress syncing the
+ * fs cache.
+ */
+void* prog_thr(void *_) {
+  for (;;) {
+    printf("\r%lu", fscache_dirty());
+    millisleep(300);
+  }
+
+  return NULL;
+}
+
 int main() {
-  printf("%lu\n", fscache_dirty());
+  pthread_t pt;
+  pthread_create(&pt, NULL, prog_thr, NULL);
+
+  sync();
+
+  pthread_cancel(pt);
+  pthread_join(pt, NULL);
+  putchar('\n');
+
   return 0;
 }
